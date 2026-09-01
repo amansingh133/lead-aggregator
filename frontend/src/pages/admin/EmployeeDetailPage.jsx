@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
-import dayjs from 'dayjs';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useEffect, useState } from "react";
+import dayjs from "dayjs";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   Alert,
   Button,
@@ -18,27 +18,30 @@ import {
   TableRow,
   TextField,
   Typography,
-} from '@mui/material';
-import { PageHeader } from '../../components/PageHeader';
-import { LoadingState } from '../../components/LoadingState';
-import { EmptyState } from '../../components/EmptyState';
-import { useAppDispatch, useAppSelector } from '../../app/hooks';
+} from "@mui/material";
+import { PageHeader } from "../../components/PageHeader";
+import { LoadingState } from "../../components/LoadingState";
+import { EmptyState } from "../../components/EmptyState";
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import {
   clearEmployeeDetail,
   fetchEmployeeDetail,
   fetchEmployeeMonthlyAttendance,
   updateEmployee,
   removeEmployee,
-} from '../../features/admin/employeesSlice';
-import { useForm } from '../../hooks/useForm';
-import { useConfirm } from '../../hooks/useConfirm';
-import { useAuth } from '../../hooks/useAuth';
-import { showToast } from '../../features/ui/uiSlice';
-import { formatTime } from '../../utils/formatters';
-import { ROLE, ROLE_LABEL, manageableRoles } from '../../constants/roles';
+} from "../../features/admin/employeesSlice";
+import { useForm } from "../../hooks/useForm";
+import { useConfirm } from "../../hooks/useConfirm";
+import { useAuth } from "../../hooks/useAuth";
+import { showToast } from "../../features/ui/uiSlice";
+import { formatTime } from "../../utils/formatters";
+import { ROLE, ROLE_LABEL, manageableRoles } from "../../constants/roles";
 
 const now = dayjs();
-const MONTHS = Array.from({ length: 12 }, (_, i) => ({ value: i + 1, label: dayjs().month(i).format('MMMM') }));
+const MONTHS = Array.from({ length: 12 }, (_, i) => ({
+  value: i + 1,
+  label: dayjs().month(i).format("MMMM"),
+}));
 const YEARS = Array.from({ length: 5 }, (_, i) => now.year() - i);
 
 export default function EmployeeDetailPage() {
@@ -48,9 +51,13 @@ export default function EmployeeDetailPage() {
   const confirm = useConfirm();
   const auth = useAuth();
   const { user: currentUser } = auth;
-  const { current: employee, monthlyAttendance, status } = useAppSelector((state) => state.employeeDetail);
+  const {
+    current: employee,
+    monthlyAttendance,
+    status,
+  } = useAppSelector((state) => state.employeeDetail);
   const isSelf = employee?._id === currentUser?._id;
-  // Backend enforces this; here it's just to hide controls that would 403/404.
+  // Backend enforces this; here it's just to hide controls that would 403/404. Just checking
   const canManage =
     !!employee &&
     !employee.isPrimary &&
@@ -58,7 +65,12 @@ export default function EmployeeDetailPage() {
     manageableRoles(auth).includes(employee.role);
   const [month, setMonth] = useState(now.month() + 1);
   const [year, setYear] = useState(now.year());
-  const { values, handleChange, setValues } = useForm({ name: '', mobileNumber: '', address: '', isActive: true });
+  const { values, handleChange, setValues } = useForm({
+    name: "",
+    mobileNumber: "",
+    address: "",
+    isActive: true,
+  });
 
   useEffect(() => {
     dispatch(fetchEmployeeDetail(id));
@@ -70,7 +82,7 @@ export default function EmployeeDetailPage() {
       setValues({
         name: employee.name,
         mobileNumber: employee.mobileNumber,
-        address: employee.address || '',
+        address: employee.address || "",
         isActive: employee.isActive,
       });
     }
@@ -78,60 +90,76 @@ export default function EmployeeDetailPage() {
   }, [employee?._id]);
 
   useEffect(() => {
-    dispatch(fetchEmployeeMonthlyAttendance({ employeeId: id, params: { month, year } }));
+    dispatch(
+      fetchEmployeeMonthlyAttendance({
+        employeeId: id,
+        params: { month, year },
+      }),
+    );
   }, [dispatch, id, month, year]);
 
   const handleSave = async () => {
     const result = await dispatch(updateEmployee({ id, payload: values }));
     if (updateEmployee.fulfilled.match(result)) {
-      dispatch(showToast('Team member updated', 'success'));
+      dispatch(showToast("Team member updated", "success"));
     } else {
-      dispatch(showToast(result.payload?.message || 'Update failed', 'error'));
+      dispatch(showToast(result.payload?.message || "Update failed", "error"));
     }
   };
 
   const handleDeactivateOrDelete = async () => {
     const ok = await confirm({
-      title: 'Remove team member',
+      title: "Remove team member",
       message:
         employee.role === ROLE.ADMIN || employee.role === ROLE.SUPER_ADMIN
           ? `Delete the ${ROLE_LABEL[employee.role]} "${employee.name}"? This can't be undone.`
           : `Delete "${employee.name}"? If they have lead/attendance history, they'll need to be deactivated instead.`,
-      confirmLabel: 'Delete',
-      severity: 'error',
+      confirmLabel: "Delete",
+      severity: "error",
     });
     if (!ok) return;
     const result = await dispatch(removeEmployee(id));
     if (removeEmployee.fulfilled.match(result)) {
-      dispatch(showToast('Team member deleted', 'success'));
-      navigate('/admin/employees');
+      dispatch(showToast("Team member deleted", "success"));
+      navigate("/admin/employees");
     } else {
-      dispatch(showToast(result.payload?.message || 'Could not delete — try deactivating instead', 'error'));
+      dispatch(
+        showToast(
+          result.payload?.message ||
+            "Could not delete — try deactivating instead",
+          "error",
+        ),
+      );
     }
   };
 
-  if (status === 'loading' || !employee) return <LoadingState />;
+  if (status === "loading" || !employee) return <LoadingState />;
 
   return (
     <>
       <PageHeader
         title={employee.name}
-        breadcrumbs={[{ label: 'Team', to: '/admin/employees' }, { label: employee.name }]}
+        breadcrumbs={[
+          { label: "Team", to: "/admin/employees" },
+          { label: employee.name },
+        ]}
         actions={
           <>
             <Chip
               label={ROLE_LABEL[employee.role] || employee.role}
               color={
                 employee.role === ROLE.SUPER_ADMIN
-                  ? 'secondary'
+                  ? "secondary"
                   : employee.role === ROLE.ADMIN
-                  ? 'primary'
-                  : 'default'
+                    ? "primary"
+                    : "default"
               }
-              variant={employee.role === ROLE.EMPLOYEE ? 'outlined' : 'filled'}
+              variant={employee.role === ROLE.EMPLOYEE ? "outlined" : "filled"}
               size="small"
             />
-            {employee.isPrimary && <Chip label="Primary" color="warning" size="small" />}
+            {employee.isPrimary && (
+              <Chip label="Primary" color="warning" size="small" />
+            )}
             <Chip label={employee.email} variant="outlined" size="small" />
             {canManage && (
               <Button color="error" onClick={handleDeactivateOrDelete}>
@@ -148,7 +176,8 @@ export default function EmployeeDetailPage() {
       )}
       {employee.isPrimary && !isSelf && (
         <Alert severity="info" sx={{ mb: 2 }}>
-          This is the primary Super Admin account and cannot be deactivated or deleted.
+          This is the primary Super Admin account and cannot be deactivated or
+          deleted.
         </Alert>
       )}
       <Grid container spacing={3}>
@@ -159,26 +188,38 @@ export default function EmployeeDetailPage() {
                 Details
               </Typography>
               <Stack spacing={2}>
-                <TextField label="Name" value={values.name} onChange={handleChange('name')} fullWidth />
+                <TextField
+                  label="Name"
+                  value={values.name}
+                  onChange={handleChange("name")}
+                  fullWidth
+                />
                 <TextField
                   label="Mobile number"
                   value={values.mobileNumber}
-                  onChange={handleChange('mobileNumber')}
+                  onChange={handleChange("mobileNumber")}
                   fullWidth
                 />
-                <TextField label="Address" value={values.address} onChange={handleChange('address')} fullWidth />
+                <TextField
+                  label="Address"
+                  value={values.address}
+                  onChange={handleChange("address")}
+                  fullWidth
+                />
                 <TextField
                   select
                   label="Status"
-                  value={values.isActive ? 'true' : 'false'}
-                  onChange={(e) => handleChange('isActive')(e.target.value === 'true')}
+                  value={values.isActive ? "true" : "false"}
+                  onChange={(e) =>
+                    handleChange("isActive")(e.target.value === "true")
+                  }
                   disabled={isSelf || employee.isPrimary}
                   helperText={
                     isSelf
                       ? "You can't change your own active status."
                       : employee.isPrimary
-                      ? 'The primary Super Admin is always active.'
-                      : undefined
+                        ? "The primary Super Admin is always active."
+                        : undefined
                   }
                   fullWidth
                 >
@@ -202,14 +243,26 @@ export default function EmployeeDetailPage() {
                 Monthly attendance
               </Typography>
               <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
-                <TextField select size="small" label="Month" value={month} onChange={(e) => setMonth(e.target.value)}>
+                <TextField
+                  select
+                  size="small"
+                  label="Month"
+                  value={month}
+                  onChange={(e) => setMonth(e.target.value)}
+                >
                   {MONTHS.map((m) => (
                     <MenuItem key={m.value} value={m.value}>
                       {m.label}
                     </MenuItem>
                   ))}
                 </TextField>
-                <TextField select size="small" label="Year" value={year} onChange={(e) => setYear(e.target.value)}>
+                <TextField
+                  select
+                  size="small"
+                  label="Year"
+                  value={year}
+                  onChange={(e) => setYear(e.target.value)}
+                >
                   {YEARS.map((y) => (
                     <MenuItem key={y} value={y}>
                       {y}
@@ -219,7 +272,8 @@ export default function EmployeeDetailPage() {
               </Stack>
               <Stack direction="row" spacing={3} sx={{ mb: 2 }}>
                 <Typography variant="body2">
-                  Present: <strong>{monthlyAttendance?.presentDays ?? 0}</strong>
+                  Present:{" "}
+                  <strong>{monthlyAttendance?.presentDays ?? 0}</strong>
                 </Typography>
                 <Typography variant="body2">
                   Hours: <strong>{monthlyAttendance?.totalHours ?? 0}</strong>
