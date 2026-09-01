@@ -1,0 +1,26 @@
+{
+  "name": "real-estate-crm",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Monorepo convenience scripts for the MERN social media aggregator",
+  "scripts": {
+    "install:all": "npm install --prefix backend && npm install --prefix frontend",
+    "postinstall": "npm run install:all",
+    "dev:backend": "npm run dev --prefix backend",
+    "dev:frontend": "npm run dev --prefix frontend",
+    "dev": "concurrently -n backend,frontend -c blue,magenta \"npm:dev:backend\" \"npm:dev:frontend\"",
+    "build:backend": "echo \"Backend needs no build step (plain Node/Express).\"",
+    "build:frontend": "npm run build --prefix frontend",
+    "build": "npm run build:frontend",
+    "start:backend": "npm run start --prefix backend",
+    "start:frontend": "serve -s frontend/dist -l ${PORT:-3000}",
+    "start": "npm run start:backend",
+    "start:all": "concurrently -n backend,frontend -c blue,magenta \"npm:start:backend\" \"npm:start:frontend\""
+  },
+  "dependencies": {
+    "serve": "^14.2.4"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.1"
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "name": "real-estate-lead-management-backend",
+  "version": "1.0.0",
+  "description": "Backend API for the Real Estate Lead Management app, with the social-media lead aggregator merged in as a module (Express.js + MongoDB Atlas)",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "fetch-meta-lead": "node src/modules/social-media/utils/fetchMetaLead.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "axios": "^1.19.0",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-async-handler": "^1.2.0",
+    "express-mongo-sanitize": "^2.2.0",
+    "express-rate-limit": "^7.4.0",
+    "express-validator": "^7.2.0",
+    "firebase-admin": "^12.5.0",
+    "helmet": "^7.1.0",
+    "hpp": "^0.2.3",
+    "joi": "^17.13.6",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.6.0",
+    "morgan": "^1.10.0",
+    "node-cron": "^3.0.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
+}
