@@ -1,0 +1,38 @@
+services:
+  backend:
+    build:
+      context: ./backend
+    restart: unless-stopped
+    expose:
+      - "6000"
+    # Env vars (MONGODB_URI, JWT_SECRET, TOKEN_ENCRYPTION_KEY, FACEBOOK_*, EMAILJS_*,
+    # FIREBASE_SERVICE_ACCOUNT_BASE64, ...) are injected at deploy time from the
+    # Coolify dashboard. For local `docker compose` testing, uncomment:
+    # env_file:
+    #   - ./backend/.env
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "require('http').get('http://127.0.0.1:6000/api/v1/health', r => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  frontend:
+    build:
+      context: ./frontend
+    restart: unless-stopped
+    # Coolify's proxy binds the host's :80/:443 and routes your domain to this
+    # container's port 80 — so publish nothing here, just expose it on the
+    # internal network. For a plain local `docker compose up`, uncomment the
+    # `ports` block to reach the app at http://localhost:8080.
+    expose:
+      - "80"
+    # ports:
+    #   - "8080:80"
+    depends_on:
+      backend:
+        condition: service_healthy

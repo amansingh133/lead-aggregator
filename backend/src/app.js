@@ -15,12 +15,14 @@ const app = express();
 // Needed so req.ip reflects the real client IP (via X-Forwarded-For) when
 // deployed behind a reverse proxy/load balancer — used by the attendance
 // module to capture the candidate's IP address on check-in/check-out.
-// Set to `1` (trust exactly one hop) rather than `true`: express-rate-limit
-// requires a bounded trust setting, since trusting every hop lets a client
-// spoof X-Forwarded-For to bypass IP-based rate limiting. If you deploy
-// behind multiple chained proxies (e.g. CDN + load balancer), raise this
-// to match the number of hops.
-app.set('trust proxy', 1);
+// A bounded hop count (not `true`) is required by express-rate-limit:
+// trusting every hop lets a client spoof X-Forwarded-For to bypass IP-based
+// rate limiting.
+// `2` = Coolify's edge proxy (Traefik) -> the frontend nginx container -> here.
+// If you run this without the nginx hop (backend exposed directly behind
+// only Coolify's proxy), set this back to `1`. Add one per extra proxy
+// (e.g. a CDN in front of Coolify).
+app.set('trust proxy', 2);
 
 app.use(helmet());
 app.use(cors({ origin: env.corsOrigin }));

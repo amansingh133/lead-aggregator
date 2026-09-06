@@ -39,9 +39,6 @@ export default defineConfig(({ mode }) => {
       https: devHttps(env),
       proxy: {
         "/api": {
-          // target:
-          //   env.VITE_DEV_PROXY_TARGET ||
-          //   "http://api.crm-estate-169.58.104.255.sslip.io",
           target: env.VITE_DEV_PROXY_TARGET || "http://localhost:6000",
           changeOrigin: true,
         },
